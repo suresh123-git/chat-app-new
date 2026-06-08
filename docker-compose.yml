@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/chat-app
+      - JWT_SECRET=change_me_in_prod
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+      - ALLOWED_ORIGINS=http://localhost:4200
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - ./backend/uploads:/app/dist/uploads
+volumes:
+  mongo-data:
