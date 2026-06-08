@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: chat-app-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    plan: starter
+    healthCheckPath: /health/ready
+    envVars:
+      - key: MONGO_URI
+      - key: JWT_SECRET
+      - key: REDIS_URL
+      - key: ALLOWED_ORIGINS
+      - key: NODE_ENV
+        value: production
+
+staticSites:
+  - name: chat-app-frontend
+    repo: .
+    branch: main
+    buildCommand: npm --workspace=frontend run build
+    publishPath: frontend/dist/frontend
+    envVars:
+      - key: NODE_ENV
+        value: production

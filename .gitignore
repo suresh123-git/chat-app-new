@@ -42,6 +42,11 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
+# Monorepo specifics
+/frontend/dist/
+/backend/dist/
+/backend/uploads/
+
 # temp directory
 .temp
 .tmp
