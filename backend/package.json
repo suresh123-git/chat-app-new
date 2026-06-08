@@ -1,17 +1,34 @@
 {
-  "name": "chat-app-new",
+  "name": "chat-app-backend",
+  "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "scripts": {
-    "install:all": "npm install",
-    "build:backend": "npm --workspace=backend run build",
-    "build:frontend": "npm --workspace=frontend run build",
-    "build": "npm run build:backend && npm run build:frontend",
-    "start:backend": "npm --workspace=backend run start:dev",
-    "start:frontend": "npm --workspace=frontend run start",
-    "start": "echo 'Run backend and frontend separately: npm run start:backend and npm run start:frontend'"
+    "build": "tsc -p tsconfig.build.json",
+    "build:prod": "tsc -p tsconfig.build.json",
+    "start:dev": "nest start --watch",
+    "start:prod": "node -r reflect-metadata dist/main.js",
+    "start": "node -r reflect-metadata dist/main.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.18",
+    "@nestjs/core": "^11.1.18",
+    "@nestjs/platform-express": "^11.1.18",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/platform-socket.io": "^11.1.18",
+    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/websockets": "^11.1.18",
+    "@nestjs/passport": "^11.0.5",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "mongoose": "^9.4.1",
+    "ioredis": "^5.10.1",
+    "socket.io": "^4.8.3",
+    "class-validator": "^0.15.1",
+    "class-transformer": "^0.5.1",
+    "reflect-metadata": "^0.2.2",
+    "tslib": "^2.3.0",
+    "bcrypt": "^6.0.0"
   }
 }
