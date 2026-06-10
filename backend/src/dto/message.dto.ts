@@ -3,13 +3,13 @@ import { IsIn, IsNotEmpty, IsOptional, IsString, MinLength, MaxLength } from 'cl
 export class SendMessageDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(1)
   @MaxLength(2000)
-  content: string;
+  content!: string;
 
   @IsIn(['text', 'image', 'file'])
   @IsOptional()
@@ -23,24 +23,24 @@ export class SendMessageDto {
 export class EditMessageDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 
   @IsString()
   @IsNotEmpty()
-  messageId: string;
+  messageId!: string;
 
   @IsString()
   @MinLength(1)
   @MaxLength(2000)
-  content: string;
+  content!: string;
 }
 
 export class DeleteMessageDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 
   @IsString()
   @IsNotEmpty()
-  messageId: string;
+  messageId!: string;
 }

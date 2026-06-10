@@ -2,24 +2,24 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, MinLength } from 'cla
 
 export class LoginDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(6)
-  password: string;
+  password!: string;
 }
 
 export class RegisterDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(6)
-  password: string;
+  password!: string;
 
   @IsString()
   @IsOptional()

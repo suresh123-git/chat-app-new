@@ -2,12 +2,12 @@ import { ArrayMinSize, ArrayUnique, IsArray, IsIn, IsNotEmpty, IsOptional, IsStr
 
 export class CreateChatDto {
   @IsIn(['personal', 'group'])
-  type: 'personal' | 'group';
+  type!: 'personal' | 'group';
 
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique()
-  members: string[];
+  members!: string[];
 
   @IsString()
   @IsOptional()
@@ -32,23 +32,23 @@ export class AddMembersDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique()
-  members: string[];
+  members!: string[];
 }
 
 export class RemoveMemberDto {
   @IsString()
   @IsNotEmpty()
-  memberId: string;
+  memberId!: string;
 }
 
 export class PromoteAdminDto {
   @IsString()
   @IsNotEmpty()
-  memberId: string;
+  memberId!: string;
 }
 
 export class DemoteAdminDto {
   @IsString()
   @IsNotEmpty()
-  memberId: string;
+  memberId!: string;
 }

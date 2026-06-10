@@ -3,11 +3,11 @@ import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validat
 export class SendMessagePayloadDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 
   @IsString()
   @IsNotEmpty()
-  content: string;
+  content!: string;
 
   @IsIn(['text', 'image', 'file'])
   @IsOptional()
@@ -21,20 +21,20 @@ export class SendMessagePayloadDto {
 export class TypingPayloadDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 
   @IsBoolean()
-  typing: boolean;
+  typing!: boolean;
 }
 
 export class ReadReceiptPayloadDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 }
 
 export class JoinChatPayloadDto {
   @IsString()
   @IsNotEmpty()
-  chatId: string;
+  chatId!: string;
 }
