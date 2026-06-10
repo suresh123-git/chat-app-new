@@ -147,6 +147,45 @@ import { ToastService } from '../services/toast.service';
         0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
         40% { opacity: 1; transform: scale(1); }
       }
+
+      @media (max-width: 560px) {
+        .auth-page {
+          min-height: 100dvh;
+          padding: 14px;
+          align-items: start;
+        }
+
+        .auth-card {
+          margin-top: max(18px, env(safe-area-inset-top));
+          border-radius: 20px;
+          padding: 24px 18px;
+        }
+
+        h1 {
+          font-size: 1.55rem;
+        }
+
+        p {
+          margin-bottom: 22px;
+          font-size: 0.92rem;
+        }
+
+        input,
+        .password-field button,
+        button.primary,
+        button.secondary {
+          min-height: 44px;
+          border-radius: 14px;
+          padding: 12px 14px;
+        }
+
+        .actions-row {
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 18px;
+          font-size: 0.9rem;
+        }
+      }
     `,
   ],
 })

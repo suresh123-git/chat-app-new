@@ -9,7 +9,8 @@ import { AuthService } from '../services/auth.service';
   template: `
     <div class="window-panel" *ngIf="chat?.title || chat">
       <header class="window-header">
-        <div>
+        <button type="button" class="mobile-back" (click)="goBack()" aria-label="Back to chats">Back</button>
+        <div class="window-title">
           <h2>{{ chat?.title || chat?.members[0]?.name || 'Conversation' }}</h2>
           <span>{{ chat?.type === 'group' ? 'Group chat' : 'Personal chat' }}</span>
         </div>
@@ -172,6 +173,81 @@ import { AuthService } from '../services/auth.service';
         padding: 10px 14px;
         margin-bottom: 18px;
       }
+      .mobile-back {
+        display: none;
+      }
+
+      @media (max-width: 760px) {
+        .window-panel,
+        .window-placeholder {
+          height: 100dvh;
+          min-height: 100dvh;
+        }
+
+        .window-header {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          gap: 10px;
+          padding: calc(12px + env(safe-area-inset-top)) 14px 12px;
+          align-items: center;
+        }
+
+        .mobile-back {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.05);
+          color: #e6edf7;
+          border-radius: 12px;
+          min-height: 40px;
+          padding: 0 12px;
+          cursor: pointer;
+        }
+
+        .window-header h2 {
+          font-size: 1rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .window-title {
+          min-width: 0;
+        }
+
+        .window-header span {
+          font-size: 0.8rem;
+        }
+
+        .window-header-actions {
+          gap: 6px;
+        }
+
+        .status-chip {
+          display: none;
+        }
+
+        .settings-btn {
+          padding: 10px 12px;
+          border-radius: 12px;
+          min-height: 40px;
+        }
+
+        .message-stream {
+          padding: 14px 12px;
+        }
+
+        .window-footer {
+          padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+          background: rgba(9, 11, 19, 0.96);
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 24px;
+        }
+      }
     `,
   ],
 })
@@ -228,6 +304,10 @@ export class ChatWindowComponent implements OnInit, AfterViewChecked {
 
   toggleGroupInfo() {
     this.chatService.toggleInfoPanel();
+  }
+
+  goBack() {
+    this.chatService.clearSelectedChat();
   }
 
   setTyping(isTyping: boolean) {

@@ -169,6 +169,45 @@ import { Message } from '../models/message.model';
         color: #b9c4df;
         cursor: pointer;
       }
+
+      @media (max-width: 760px) {
+        .bubble-wrapper {
+          margin: 6px 0;
+        }
+
+        .bubble {
+          max-width: 88%;
+          padding: 12px 13px;
+          border-radius: 18px;
+          gap: 8px;
+        }
+
+        .bubble-row {
+          gap: 8px;
+          font-size: 0.72rem;
+        }
+
+        .bubble-body {
+          overflow-wrap: anywhere;
+          line-height: 1.35;
+        }
+
+        .bubble-body img {
+          max-width: 100%;
+          max-height: 260px;
+          object-fit: contain;
+        }
+
+        .bubble-footer,
+        .reaction-row {
+          gap: 8px;
+          font-size: 0.78rem;
+        }
+
+        .edit-actions {
+          flex-wrap: wrap;
+        }
+      }
     `,
   ],
 })

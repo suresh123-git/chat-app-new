@@ -297,6 +297,75 @@ import { debounceTime, filter, Subject } from 'rxjs';
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
+      @media (max-width: 760px) {
+        .list-panel {
+          height: 100dvh;
+          padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+        }
+
+        .profile-section {
+          margin-bottom: 14px;
+        }
+
+        .profile-summary {
+          padding: 12px;
+          border-radius: 14px;
+        }
+
+        .avatar-large {
+          width: 42px;
+          height: 42px;
+        }
+
+        .tabs {
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .tabs button {
+          min-height: 42px;
+          padding: 9px 12px;
+          border-radius: 12px;
+        }
+
+        .search-box {
+          margin-bottom: 12px;
+        }
+
+        .search-box input {
+          min-height: 44px;
+          padding: 12px 14px;
+          border-radius: 14px;
+        }
+
+        .conversation-list {
+          gap: 7px;
+          padding-bottom: 2px;
+        }
+
+        .conversation-list button {
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          min-height: 64px;
+          max-height: none;
+          padding: 10px 12px;
+          border-radius: 15px;
+        }
+
+        .avatar {
+          width: 42px;
+          height: 42px;
+          border-radius: 13px;
+        }
+
+        .meta strong {
+          font-size: 0.92rem;
+        }
+
+        .meta span {
+          font-size: 0.78rem;
+        }
+      }
     `,
   ],
 })

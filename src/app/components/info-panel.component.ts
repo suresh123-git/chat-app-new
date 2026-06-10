@@ -222,6 +222,28 @@ import { ToastService } from '../services/toast.service';
         padding: 22px;
         text-align: center;
       }
+
+      @media (max-width: 760px) {
+        .info-card {
+          height: 100dvh;
+          padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+          gap: 18px;
+        }
+
+        .chat-title {
+          font-size: 1.1rem;
+        }
+
+        .group-name-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .save-name-btn,
+        .add-members-btn {
+          min-height: 44px;
+        }
+      }
     `,
   ],
 })

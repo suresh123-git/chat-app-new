@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:prod": "tsc -p tsconfig.build.json",
-    "start:dev": "nest start --watch",
+    "start:dev": "npx -y @nestjs/cli@latest start --watch",
     "start:prod": "node -r reflect-metadata dist/main.js",
     "start": "node -r reflect-metadata dist/main.js"
   },
@@ -38,4 +38,10 @@
     "socket.io": "^4.8.3",
     "tslib": "^2.3.0"
   }
+  ,
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/node": "^20.5.0"
+  }
+  
 }

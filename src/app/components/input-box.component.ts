@@ -67,6 +67,44 @@ import { Component, EventEmitter, Output } from '@angular/core';
         font-size: 1.2rem;
         cursor: pointer;
       }
+
+      @media (max-width: 760px) {
+        .input-row {
+          grid-template-columns: 42px minmax(0, 1fr) 42px 58px;
+          gap: 7px;
+        }
+
+        input {
+          min-height: 44px;
+          border-radius: 14px;
+          padding: 12px 13px;
+          font-size: 0.95rem;
+        }
+
+        .send-button,
+        .action,
+        .upload-label {
+          min-height: 42px;
+          padding: 10px 8px;
+          border-radius: 13px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .send-button {
+          font-size: 0.86rem;
+          font-weight: 700;
+        }
+
+        .emoji-panel {
+          grid-template-columns: repeat(4, minmax(40px, 1fr));
+          gap: 8px;
+          padding: 10px;
+          border-radius: 16px;
+        }
+      }
     `,
   ],
 })
