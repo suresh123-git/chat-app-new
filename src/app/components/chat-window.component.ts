@@ -28,18 +28,25 @@ import { AuthService } from '../services/auth.service';
         <div class="loading-row" *ngIf="loading">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
         </div>
-        <div class="messages" *ngIf="groupedMessages.length > 0; else emptyState">
-          <div *ngFor="let group of groupedMessages" class="message-group">
-            <div class="date-separator">{{ group.label }}</div>
-            <div *ngFor="let message of group.messages">
-              <app-message-bubble [message]="message" [isOwn]="message.sender._id === currentUser?._id" (edit)="onEditMessage($event)" (delete)="onDeleteMessage($event)"></app-message-bubble>
+        <div class="shimmer-container" *ngIf="isLoadingMessages; else messagesContent">
+          <div class="shimmer-bubble left"></div>
+          <div class="shimmer-bubble right"></div>
+          <div class="shimmer-bubble left"></div>
+        </div>
+        <ng-template #messagesContent>
+          <div class="messages" *ngIf="groupedMessages.length > 0; else emptyState">
+            <div *ngFor="let group of groupedMessages" class="message-group">
+              <div class="date-separator">{{ group.label }}</div>
+              <div *ngFor="let message of group.messages">
+                <app-message-bubble [message]="message" [isOwn]="message.sender._id === currentUser?._id" (edit)="onEditMessage($event)" (delete)="onDeleteMessage($event)"></app-message-bubble>
+              </div>
             </div>
           </div>
-        </div>
-        <ng-template #emptyState>
-          <div class="empty-state">
-            <p>Pick a chat to start a polished conversation.</p>
-          </div>
+          <ng-template #emptyState>
+            <div class="empty-state">
+              <p>Pick a chat to start a polished conversation.</p>
+            </div>
+          </ng-template>
         </ng-template>
       </section>
       <footer class="window-footer">
@@ -173,6 +180,35 @@ import { AuthService } from '../services/auth.service';
         padding: 10px 14px;
         margin-bottom: 18px;
       }
+      .shimmer-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 10px 0;
+      }
+      .shimmer-bubble {
+        height: 50px;
+        border-radius: 14px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+      .shimmer-bubble.left {
+        width: 60%;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+      }
+      .shimmer-bubble.right {
+        width: 55%;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        background: linear-gradient(90deg, rgba(111, 94, 251, 0.1) 25%, rgba(111, 94, 251, 0.2) 50%, rgba(111, 94, 251, 0.1) 75%);
+        background-size: 200% 100%;
+      }
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
       .mobile-back {
         display: none;
       }
@@ -259,6 +295,7 @@ export class ChatWindowComponent implements OnInit, AfterViewChecked {
   currentUser: any = null;
   activeTab: 'personal' | 'group' = 'personal';
   loading = false;
+  isLoadingMessages = false;
   private shouldScrollToBottom = false;
 
   @ViewChild('messageStream') messageStream!: ElementRef;
@@ -273,12 +310,16 @@ export class ChatWindowComponent implements OnInit, AfterViewChecked {
 
   ngOnInit() {
     this.chatService.selectedChat$.subscribe((chat) => {
+      if (this.chat?._id !== chat?._id) {
+        this.isLoadingMessages = !!chat;
+      }
       this.chat = chat;
       this.cdr.detectChanges();
     });
     this.chatService.messages$.subscribe((messages) => {
       this.messages = messages;
       this.groupedMessages = this.groupByDate(messages);
+      this.isLoadingMessages = false;
       this.shouldScrollToBottom = true;
       this.cdr.detectChanges();
     });
