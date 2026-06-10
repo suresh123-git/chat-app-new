@@ -57,8 +57,14 @@ import { debounceTime, filter, Subject } from 'rxjs';
         </div>
 
         <div class="chat-list-container" role="list">
-          <div class="loading-indicator" *ngIf="loading">
-            <span class="spinner"></span>
+          <div class="shimmer-list-container" *ngIf="loading">
+            <div class="shimmer-chat-item" *ngFor="let i of [1, 2, 3, 4, 5, 6]">
+              <div class="shimmer-avatar"></div>
+              <div class="shimmer-info">
+                <div class="shimmer-line title"></div>
+                <div class="shimmer-line subtitle"></div>
+              </div>
+            </div>
           </div>
 
           <ng-container *ngIf="!loading">
@@ -463,23 +469,58 @@ import { debounceTime, filter, Subject } from 'rxjs';
         }
       }
 
-      .loading-indicator {
+      .shimmer-list-container {
         display: flex;
+        flex-direction: column;
+      }
+
+      .shimmer-chat-item {
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        height: 72px;
+        box-sizing: border-box;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .shimmer-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+        flex-shrink: 0;
+        margin-right: 12px;
+      }
+
+      .shimmer-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         justify-content: center;
-        padding: 24px;
+        gap: 10px;
       }
 
-      .spinner {
-        width: 24px;
-        height: 24px;
-        border: 3px solid rgba(111, 94, 251, 0.1);
-        border-top-color: #6f5efb;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
+      .shimmer-line {
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
       }
 
-      @keyframes spin {
-        to { transform: rotate(360deg); }
+      .shimmer-line.title {
+        width: 50%;
+      }
+
+      .shimmer-line.subtitle {
+        width: 80%;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
       }
 
       .empty-state {
@@ -510,11 +551,13 @@ export class ChatListComponent implements OnInit {
     this.chat.chats$.subscribe((chats) => {
       this.chats = chats;
       this.selectedId = this.chat.selectedChat$.value?._id || '';
+      this.loading = false;
       this.cdr.markForCheck();
     });
 
     this.chat.contacts$.subscribe((contacts) => {
       this.contacts = contacts;
+      this.loading = false;
       this.cdr.markForCheck();
     });
 
@@ -529,7 +572,6 @@ export class ChatListComponent implements OnInit {
       this.loading = true;
       this.chat.loadChats();
       this.chat.loadContacts();
-      this.chat.chats$.subscribe(() => { this.loading = false; this.cdr.markForCheck(); });
     });
 
     this.chat.selectedChat$.subscribe((chat) => {
@@ -554,6 +596,7 @@ export class ChatListComponent implements OnInit {
   setTab(tab: 'personal' | 'group') {
     this.activeTab = tab;
     this.searchTerm = '';
+    this.loading = true;
     this.chat.setActiveTab(tab);
     this.chat.clearSelectedChat();
     if (tab === 'group') {

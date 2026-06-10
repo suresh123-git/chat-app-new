@@ -37,7 +37,13 @@ import { ToastService } from '../services/toast.service';
               />
             </div>
 
-            <div class="search-dropdown" *ngIf="memberSearchResults.length > 0">
+            <div class="shimmer-dropdown" *ngIf="isSearchingMembers">
+              <div class="shimmer-item"></div>
+              <div class="shimmer-item"></div>
+              <div class="shimmer-item"></div>
+            </div>
+
+            <div class="search-dropdown" *ngIf="!isSearchingMembers && memberSearchResults.length > 0">
               <div class="search-debug">Results: {{ memberSearchResults.length }}</div>
               <button
                 type="button"
@@ -50,7 +56,7 @@ import { ToastService } from '../services/toast.service';
               </button>
             </div>
 
-            <div class="search-hint" *ngIf="query && memberSearchResults && memberSearchResults.length === 0">
+            <div class="search-hint" *ngIf="query && !isSearchingMembers && memberSearchResults.length === 0">
               No members found. Try a different search term.
             </div>
 
@@ -189,6 +195,31 @@ import { ToastService } from '../services/toast.service';
         overflow-y: auto;
         z-index: 9999;
         margin-top: 8px;
+      }
+      .shimmer-dropdown {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        margin-top: 8px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .shimmer-item {
+        height: 48px;
+        border-radius: 8px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
       }
 
       .search-debug {
@@ -331,6 +362,7 @@ import { ToastService } from '../services/toast.service';
 export class GroupChatModalComponent implements OnInit {
   isOpen = false;
   isLoading = false;
+  isSearchingMembers = false;
   form!: FormGroup;
   query = '';
   selectedMembers: User[] = [];
@@ -382,23 +414,29 @@ export class GroupChatModalComponent implements OnInit {
     console.log('group member search term:', term);
 
     if (!term) {
+      this.isSearchingMembers = false;
       this.memberSearchResults = [];
       return;
     }
 
-    this.chatService.searchUsers(term).subscribe(
-      (users) => {
+    this.isSearchingMembers = true;
+    this.memberSearchResults = [];
+    this.chatService.searchUsers(term).subscribe({
+      next: (users) => {
         console.log('group search results:', users);
         this.memberSearchResults = users;
-        console.log(this.memberSearchResults, 'mmmmmmmmmmm', this.selectedMembers)
-        this.cdr.detectChanges();
+        console.log(this.memberSearchResults, 'mmmmmmmmmmm', this.selectedMembers);
       },
-      (error: any) => {
+      error: (error: any) => {
         console.error('Search failed:', error);
-        this.memberSearchResults = [];
+        this.isSearchingMembers = false;
         this.cdr.detectChanges();
       },
-    );
+      complete: () => {
+        this.isSearchingMembers = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   addMemberToSelection(user: User) {
