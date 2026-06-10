@@ -19,7 +19,8 @@ services:
       - key: NODE_ENV
         value: production
 
-staticSites:
-  - name: chat-app-frontend
+  - type: static
+    name: chat-app-frontend
     buildCommand: npm install && npm run build
     publishPath: dist/frontend
+    plan: free
