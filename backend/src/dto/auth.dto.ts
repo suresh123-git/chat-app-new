@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, MinLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class LoginDto {
   @IsEmail()
@@ -23,6 +24,7 @@ export class RegisterDto {
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' && value.trim() === '' ? undefined : value))
   @IsUrl()
   avatar?: string;
 }

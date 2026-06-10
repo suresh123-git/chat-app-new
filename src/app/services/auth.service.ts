@@ -37,7 +37,8 @@ export class AuthService {
   }
 
   signup(name: string, email: string, password: string, avatar?: string) {
-    return this.api.post<{ accessToken: string; user: User }>('/auth/register', { name, email, password, avatar }).pipe(
+    const body = avatar ? { name, email, password, avatar } : { name, email, password };
+    return this.api.post<{ accessToken: string; user: User }>('/auth/register', body).pipe(
       tap((result) => {
         localStorage.setItem('chat_token', result.accessToken);
         this.user$.next(result.user);

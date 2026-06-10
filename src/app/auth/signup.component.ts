@@ -174,7 +174,7 @@ export class SignupComponent {
     const name = this.form.value.name ?? '';
     const email = this.form.value.email ?? '';
     const password = this.form.value.password ?? '';
-    const avatar = this.form.value.avatar ?? '';
+    const avatar = this.form.value.avatar?.trim() || undefined;
     this.signupError = null;
     this.loading = true;
     this.auth.signup(name, email, password, avatar).subscribe({
