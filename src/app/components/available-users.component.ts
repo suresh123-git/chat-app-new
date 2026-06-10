@@ -22,7 +22,14 @@ type SidebarItem =
             <strong>{{ currentUser.name }}</strong>
             <span>{{ currentUser.status || 'offline' }}</span>
           </div>
-          <button type="button" class="logout-button" (click)="logout()">Logout</button>
+          <button type="button" class="logout-button" (click)="logout()" title="Logout" aria-label="Logout">
+            <span>Logout</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -89,15 +96,42 @@ type SidebarItem =
         font-size: 0.9rem;
       }
       .logout-button {
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.10);
         border-radius: 14px;
         background: rgba(255, 255, 255, 0.08);
         color: #eef2ff;
-        padding: 10px 14px;
+        padding: 12px 16px;
         cursor: pointer;
+        font-weight: 700;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        overflow: visible;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .logout-button::after {
+        content: '';
+        position: absolute;
+        left: -6px;
+        right: -6px;
+        top: -6px;
+        bottom: -6px;
+        border-radius: 20px;
+        pointer-events: none;
+        box-shadow: 0 0 0 0 rgba(111, 94, 251, 0.06);
+        animation: logoutPulse 2000ms infinite;
+        opacity: 0.9;
       }
       .logout-button:hover {
-        background: rgba(255, 255, 255, 0.14);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+      }
+      @keyframes logoutPulse {
+        0% { box-shadow: 0 0 0 0 rgba(111,94,251,0.06); }
+        70% { box-shadow: 0 0 0 10px rgba(111,94,251,0); }
+        100% { box-shadow: 0 0 0 0 rgba(111,94,251,0); }
       }
       .search-row input {
         width: 100%;

@@ -24,7 +24,7 @@ import { ToastService } from '../services/toast.service';
       </div>
       <nav class="sidebar-nav">
         <button (click)="goToSettings()">Settings</button>
-        <button (click)="logout()">Logout</button>
+        <button class="logout-action" (click)="logout()">Logout</button>
       </nav>
     </section>
   `,
@@ -99,6 +99,15 @@ import { ToastService } from '../services/toast.service';
       }
       .sidebar-nav button:hover {
         background: rgba(255, 255, 255, 0.1);
+      }
+      .sidebar-nav .logout-action {
+        background: linear-gradient(90deg, #ff7a7a, #ff3b3b);
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 8px 18px rgba(255, 59, 59, 0.14);
+      }
+      .sidebar-nav .logout-action:hover {
+        transform: translateY(-2px);
       }
     `,
   ],

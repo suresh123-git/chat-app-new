@@ -17,7 +17,13 @@ import { debounceTime, filter, Subject } from 'rxjs';
             <strong>{{ currentUser.name }}</strong>
             <span>{{ currentUser.status || 'offline' }}</span>
           </div>
-          <button type="button" class="logout-btn" (click)="logout()" title="Logout">⊗</button>
+          <button type="button" class="logout-btn" (click)="logout()" title="Logout" aria-label="Logout">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -134,18 +140,43 @@ import { debounceTime, filter, Subject } from 'rxjs';
       }
 
       .logout-btn {
-        background: transparent;
-        border: none;
+        position: relative;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.10);
         color: #8b97b3;
         cursor: pointer;
-        font-size: 1.2rem;
-        padding: 4px 8px;
+        font-size: 1.05rem;
+        padding: 8px 12px;
         flex-shrink: 0;
-        transition: color 0.2s;
+        border-radius: 10px;
+        font-weight: 700;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, color 0.12s;
+      }
+
+      .logout-btn::after {
+        content: '';
+        position: absolute;
+        left: -8px;
+        right: -8px;
+        top: -8px;
+        bottom: -8px;
+        border-radius: 14px;
+        pointer-events: none;
+        box-shadow: 0 0 0 0 rgba(111,94,251,0.04);
+        animation: logoutPulseSmall 2200ms infinite;
       }
 
       .logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
         color: #e6edf7;
+      }
+
+      @keyframes logoutPulseSmall {
+        0% { box-shadow: 0 0 0 0 rgba(111,94,251,0.04); }
+        70% { box-shadow: 0 0 0 8px rgba(111,94,251,0); }
+        100% { box-shadow: 0 0 0 0 rgba(111,94,251,0); }
       }
 
       .tabs {

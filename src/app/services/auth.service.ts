@@ -23,6 +23,15 @@ export class AuthService {
         error: () => this.clearSession(),
       });
     }
+    // reflect socket connection status in the current user's `status` field
+    this.socket.connectionStatus$.subscribe((conn) => {
+      const current = this.user$.value;
+      if (!current) return;
+      const newStatus = conn === 'connected' ? 'online' : 'offline';
+      if (current.status !== newStatus) {
+        this.user$.next({ ...current, status: newStatus });
+      }
+    });
   }
 
   login(email: string, password: string) {
