@@ -3,24 +3,17 @@ services:
     name: chat-app-backend
     runtime: node
     rootDir: backend
+    plan: free
+
     buildCommand: npm install && npm run build
     startCommand: npm run start:prod
-    plan: free
 
     envVars:
       - key: MONGO_URI
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: REDIS_URL
-        sync: false
       - key: ALLOWED_ORIGINS
         sync: false
       - key: NODE_ENV
         value: production
-
-  - type: static
-    name: chat-app-frontend
-    buildCommand: npm install && npm run build
-    publishPath: dist/frontend
-    plan: free
