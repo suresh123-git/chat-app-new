@@ -44,11 +44,14 @@ type SidebarItem =
           [class.active]="item.kind === 'chat' && selectedChatId === item.chat._id"
           (click)="item.kind === 'chat' ? openChat(item.chat) : startChat(item.user)"
         >
-          <div>
-            <strong>{{ item.kind === 'chat' ? (item.chat.title || item.chat.members[0]?.name || 'Conversation') : item.user.name }}</strong>
-            <span>{{ item.kind === 'chat' ? (item.chat.lastMessage || 'No messages yet') : item.user.email }}</span>
+          <div class="list-item-left">
+            <img class="avatar-mini" [src]="item.kind === 'chat' ? (item.chat.avatar || defaultAvatar) : (item.user.avatar || defaultAvatar)" alt="avatar" />
+            <div class="meta">
+              <strong>{{ item.kind === 'chat' ? (item.chat.title || item.chat.members[0]?.name || 'Conversation') : item.user.name }}</strong>
+              <span>{{ item.kind === 'chat' ? (item.chat.lastMessage || 'No messages yet') : item.user.email }}</span>
+            </div>
           </div>
-          <small>
+          <small class="right-meta">
             {{ item.kind === 'chat' ? (item.chat.updatedAt ? (item.chat.updatedAt | date: 'shortTime') : '') : (item.user.status || 'offline') }}
           </small>
         </button>
@@ -133,6 +136,65 @@ type SidebarItem =
         70% { box-shadow: 0 0 0 10px rgba(111,94,251,0); }
         100% { box-shadow: 0 0 0 0 rgba(111,94,251,0); }
       }
+      /* Mobile: convert side panel into a compact bottom bar */
+      @media (max-width: 760px) {
+        .available-users-card {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          /* allow the card to grow so the contacts list can be visible */
+          height: auto;
+          max-height: 70vh;
+          padding: 10px 12px;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+          z-index: 60;
+          border-radius: 12px 12px 0 0;
+          background: rgba(15, 19, 32, 0.98);
+          border-right: none;
+        }
+
+        .profile-summary {
+          padding: 0;
+          background: transparent;
+          gap: 10px;
+        }
+
+        .profile-summary img {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+        }
+
+        .profile-copy {
+          width: auto;
+        }
+
+        .search-row { display: none; }
+
+        .contacts-list {
+          display: flex;
+          gap: 10px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .contacts-list button {
+          min-width: 52px;
+          padding: 8px;
+          justify-content: center;
+          align-items: center;
+          background: transparent;
+          box-shadow: none;
+        }
+
+        .contacts-list button strong,
+        .contacts-list button span,
+        .contacts-list small { display: none; }
+      }
       .search-row input {
         width: 100%;
         border: none;
@@ -142,24 +204,58 @@ type SidebarItem =
         padding: 14px 18px;
       }
       .contacts-list {
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
         overflow-y: auto;
         padding-right: 4px;
+        flex: 1 1 auto;
       }
       .contacts-list button {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        padding: 16px 18px;
+        align-items: center;
+        padding: 12px 14px;
         gap: 12px;
         width: 100%;
         border: none;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
         color: #eef2ff;
         cursor: pointer;
         text-align: left;
+        min-height: 64px;
+      }
+
+      .list-item-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .avatar-mini {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: rgba(111,94,251,0.14);
+        flex-shrink: 0;
+      }
+
+      .contacts-list .meta strong {
+        font-size: 0.98rem;
+      }
+
+      .contacts-list .meta span {
+        color: #94a0b2;
+        font-size: 0.9rem;
+      }
+
+      .right-meta {
+        color: #8b97b3;
+        font-size: 0.82rem;
+        flex-shrink: 0;
       }
       .contacts-list button.active,
       .contacts-list button:hover {

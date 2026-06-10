@@ -9,393 +9,484 @@ import { debounceTime, filter, Subject } from 'rxjs';
   standalone: false,
   selector: 'app-chat-list',
   template: `
-    <div class="list-panel">
-      <div class="profile-section" *ngIf="auth.user$ | async as currentUser">
-        <div class="profile-summary">
-          <div class="avatar-large">{{ currentUser.name.charAt(0) || 'U' }}</div>
-          <div class="profile-info">
-            <strong>{{ currentUser.name }}</strong>
-            <span>{{ currentUser.status || 'offline' }}</span>
+    <div class="master-container">
+      <!-- Desktop Left Rail -->
+      <nav class="desktop-rail" role="tablist">
+        <button class="rail-item" [class.active]="activeTab === 'personal'" (click)="setTab('personal')" aria-label="Chats" title="Chats">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"></path>
+          </svg>
+        </button>
+        <button class="rail-item" [class.active]="activeTab === 'group'" (click)="setTab('group')" aria-label="Groups" title="Groups">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M7 21v-2a4 4 0 0 1 3-3.87"></path>
+            <path d="M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" transform="translate(0 2)"></path>
+          </svg>
+        </button>
+      </nav>
+
+      <div class="sidebar-layout">
+        <header class="app-header">
+          <div class="header-profile" *ngIf="auth.user$ | async as currentUser">
+            <div class="avatar" [title]="currentUser.name">{{ currentUser.name.charAt(0) || 'U' }}</div>
+            <div class="header-text">
+              <h1 class="app-title">Chats</h1>
+            </div>
           </div>
-          <button type="button" class="logout-btn" (click)="logout()" title="Logout" aria-label="Logout">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="header-actions">
+            <app-new-chat-panel></app-new-chat-panel>
+            <button class="icon-btn" (click)="logout()" title="Logout" aria-label="Logout">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-          </button>
+            <input placeholder="Search or start new chat" (input)="onSearch($any($event.target).value)" />
+          </div>
         </div>
-      </div>
 
-      <app-new-chat-panel></app-new-chat-panel>
-
-      <div class="tabs">
-        <button type="button" [class.active]="activeTab === 'personal'" (click)="setTab('personal')">Personal</button>
-        <button type="button" [class.active]="activeTab === 'group'" (click)="setTab('group')">Groups</button>
-      </div>
-
-      <div class="search-box">
-        <input placeholder="Search by name or group" (input)="onSearch($any($event.target).value)" />
-      </div>
-
-      <div class="loading-row" *ngIf="loading">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      </div>
-      <div class="conversation-list">
-        <ng-container *ngIf="activeTab === 'personal'">
-          <div class="no-chats" *ngIf="visiblePersonalUsers.length === 0">
-            No personal users found.
+        <div class="chat-list-container" role="list">
+          <div class="loading-indicator" *ngIf="loading">
+            <span class="spinner"></span>
           </div>
-          <button
-            type="button"
-            *ngFor="let user of visiblePersonalUsers"
-            (click)="openPersonalChat(user)"
-          >
-            <div class="avatar">{{ user.name ? user.name.charAt(0) : 'U' }}</div>
-            <div class="meta">
-              <div class="title-row">
-                <strong>{{ user.name }}</strong>
-              </div>
-              <span>{{ user.email }}</span>
-            </div>
-          </button>
-        </ng-container>
 
-        <ng-container *ngIf="activeTab === 'group'">
-          <div class="no-chats" *ngIf="chats.length === 0">
-            No groups found.
-          </div>
-          <button
-            *ngFor="let chat of chats"
-            [class.active]="chat._id === selectedId"
-            (click)="select(chat)"
-          >
-            <div class="avatar">{{ chat.title?.charAt(0) || 'G' }}</div>
-            <div class="meta">
-              <div class="title-row">
-                <strong>{{ chat.title || 'Group Chat' }}</strong>
-                <span class="group-badge" title="Group Chat">👥</span>
-              </div>
-              <span>{{ chat.lastMessage || 'Start the conversation' }}</span>
-            </div>
-            <div class="right-column">
-              <span class="time">{{ chat.updatedAt ? (chat.updatedAt | date:'shortTime') : '' }}</span>
-              <span class="badge" *ngIf="chat.unreadCount && chat.unreadCount > 0">{{ chat.unreadCount }}</span>
-            </div>
+          <ng-container *ngIf="!loading">
+            <ng-container *ngIf="activeTab === 'personal'">
+              <div class="empty-state" *ngIf="visiblePersonalUsers.length === 0">No contacts found.</div>
+              <button
+                type="button"
+                class="chat-item"
+                *ngFor="let user of visiblePersonalUsers"
+                (click)="openPersonalChat(user)"
+                [class.active]="hasActiveChat(user._id)"
+              >
+                <div class="chat-avatar">{{ user.name ? user.name.charAt(0) : 'U' }}</div>
+                <div class="chat-info">
+                  <div class="chat-title-row">
+                    <span class="chat-title">{{ user.name }}</span>
+                  </div>
+                  <div class="chat-subtitle-row">
+                    <span class="chat-preview">{{ user.email }}</span>
+                  </div>
+                </div>
+              </button>
+            </ng-container>
+
+            <ng-container *ngIf="activeTab === 'group'">
+              <div class="empty-state" *ngIf="chats.length === 0">No groups found.</div>
+              <button
+                class="chat-item"
+                *ngFor="let chat of chats"
+                [class.active]="chat._id === selectedId"
+                (click)="select(chat)"
+              >
+                <div class="chat-avatar">{{ chat.title?.charAt(0) || 'G' }}</div>
+                <div class="chat-info">
+                  <div class="chat-title-row">
+                    <span class="chat-title">{{ chat.title || 'Group Chat' }}</span>
+                    <span class="chat-time">{{ chat.updatedAt ? (chat.updatedAt | date:'shortTime') : '' }}</span>
+                  </div>
+                  <div class="chat-subtitle-row">
+                    <span class="chat-preview">{{ chat.lastMessage || 'Start the conversation' }}</span>
+                    <span class="chat-badge" *ngIf="chat.unreadCount && chat.unreadCount > 0">{{ chat.unreadCount }}</span>
+                  </div>
+                </div>
+              </button>
+            </ng-container>
+          </ng-container>
+        </div>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="bottom-nav" role="tablist">
+          <button class="nav-tab" [class.active]="activeTab === 'personal'" (click)="setTab('personal')" aria-label="Chats">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"></path>
+            </svg>
+            <span>Chats</span>
           </button>
-        </ng-container>
+          <button class="nav-tab" [class.active]="activeTab === 'group'" (click)="setTab('group')" aria-label="Groups">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M7 21v-2a4 4 0 0 1 3-3.87"></path>
+              <path d="M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" transform="translate(0 2)"></path>
+            </svg>
+            <span>Groups</span>
+          </button>
+        </nav>
       </div>
     </div>
   `,
   styles: [
     `
-      .list-panel {
+      :host {
+        display: block;
+        height: 100%;
+        background: #090b12;
+      }
+
+      .master-container {
+        display: flex;
+        height: 100dvh;
+        width: 100%;
+        background: #090b12;
+      }
+
+      /* Desktop Rail */
+      .desktop-rail {
         display: flex;
         flex-direction: column;
-        height: 100%;
-        padding: 22px;
-        background: rgba(15, 19, 32, 0.98);
-        overflow: hidden;
+        width: 64px;
+        background: #0c0f17;
+        border-right: 1px solid rgba(255, 255, 255, 0.04);
+        align-items: center;
+        padding-top: 16px;
+        gap: 24px;
+        flex-shrink: 0;
       }
 
-      .profile-section {
-        margin-bottom: 22px;
-      }
-
-      .profile-summary {
+      .rail-item {
+        background: transparent;
+        border: none;
+        color: #8b97b3;
+        cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 14px;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 16px;
-      }
-
-      .avatar-large {
+        justify-content: center;
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background: rgba(111, 94, 251, 0.3);
+        transition: all 0.2s;
+      }
+
+      .rail-item:hover {
+        color: #c3cce0;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .rail-item.active {
+        color: #fff;
+        background: rgba(111, 94, 251, 0.24);
+      }
+
+      .rail-item.active svg {
+        color: #6f5efb;
+      }
+
+      /* Sidebar Main Layout */
+      .sidebar-layout {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #090b12;
+        color: #eaf0ff;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+
+      .app-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-weight: 700;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: #0c0f17;
         flex-shrink: 0;
+        height: 60px;
+        box-sizing: border-box;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       }
 
-      .profile-info {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .profile-info strong {
-        display: block;
-        font-size: 0.95rem;
-        margin-bottom: 2px;
-      }
-
-      .profile-info span {
-        font-size: 0.85rem;
-        color: #8b97b3;
-      }
-
-      .logout-btn {
-        position: relative;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        color: #8b97b3;
-        cursor: pointer;
-        font-size: 1.05rem;
-        padding: 8px 12px;
-        flex-shrink: 0;
-        border-radius: 10px;
-        font-weight: 700;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-        transition: transform 0.12s ease, box-shadow 0.12s ease, color 0.12s;
-      }
-
-      .logout-btn::after {
-        content: '';
-        position: absolute;
-        left: -8px;
-        right: -8px;
-        top: -8px;
-        bottom: -8px;
-        border-radius: 14px;
-        pointer-events: none;
-        box-shadow: 0 0 0 0 rgba(111,94,251,0.04);
-        animation: logoutPulseSmall 2200ms infinite;
-      }
-
-      .logout-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
-        color: #e6edf7;
-      }
-
-      @keyframes logoutPulseSmall {
-        0% { box-shadow: 0 0 0 0 rgba(111,94,251,0.04); }
-        70% { box-shadow: 0 0 0 8px rgba(111,94,251,0); }
-        100% { box-shadow: 0 0 0 0 rgba(111,94,251,0); }
-      }
-
-      .tabs {
+      .header-profile {
         display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-
-      .tabs button {
-        flex: 1;
-        padding: 10px 14px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.04);
-        color: #e6edf7;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .tabs button.active {
-        background: rgba(111, 94, 251, 0.85);
-        border-color: rgba(111, 94, 251, 0.9);
-      }
-
-      .search-box {
-        margin-bottom: 20px;
-      }
-
-      .search-box input {
-        width: 100%;
-        border: none;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.05);
-        color: #e6edf7;
-        padding: 14px 18px;
-      }
-
-      .search-box input:focus {
-        outline: 1px solid rgba(111, 94, 251, 0.6);
-      }
-
-      .conversation-list {
-        display: grid;
-        gap: 8px;
-        flex: 1;
-        overflow-y: auto;
-        min-width: 0;
-      }
-
-      .loading-row {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        padding: 12px;
-      }
-      .loading-row .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #6f5efb;
-        animation: dotPulse 1.2s ease-in-out infinite;
-      }
-      .loading-row .dot:nth-child(2) { animation-delay: 0.2s; }
-      .loading-row .dot:nth-child(3) { animation-delay: 0.4s; }
-      @keyframes dotPulse {
-        0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
-        40% { opacity: 1; transform: scale(1); }
-      }
-      .no-chats {
-        padding: 18px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.03);
-        color: #9aa2b3;
-        text-align: center;
-      }
-
-      .conversation-list button {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 8px;
         align-items: center;
-        padding: 10px 14px;
-        min-height: 60px;
-        max-height: 60px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid transparent;
-        border-radius: 18px;
-        color: #e2ebff;
-        cursor: pointer;
-        transition: transform 0.2s ease, border 0.2s ease, background 0.2s ease;
-        text-align: left;
-        min-width: 0;
-      }
-
-      .conversation-list button > .meta {
-        min-width: 0;
-      }
-
-      .conversation-list button:hover,
-      .conversation-list button.active {
-        background: rgba(111, 94, 251, 0.15);
-        border-color: rgba(111, 94, 251, 0.35);
-        transform: translateY(-1px);
+        gap: 12px;
       }
 
       .avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        display: grid;
-        place-items: center;
-        background: rgba(111, 94, 251, 0.3);
-        font-weight: 700;
-        flex-shrink: 0;
-      }
-
-      .meta {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 0;
-      }
-
-      .title-row {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(111, 94, 251, 0.24);
+        color: #fff;
         display: flex;
         align-items: center;
-        gap: 6px;
-        min-width: 0;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
       }
 
-      .meta strong {
-        display: block;
-        font-size: 0.95rem;
-        line-height: 1.1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .app-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        color: #eaf0ff;
       }
 
-      .group-badge {
-        font-size: 0.8rem;
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .icon-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: #8b97b3;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+      }
+
+      .icon-btn:hover {
+        color: #c3cce0;
+      }
+
+      .search-container {
+        padding: 8px 12px;
+        background: #090b12;
         flex-shrink: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       }
 
-      .meta span {
-        color: #9aa2b3;
-        font-size: 0.85rem;
+      .search-input-wrapper {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 0 12px;
+        height: 38px;
+        gap: 12px;
+        border: 1px solid transparent;
+        transition: border-color 0.2s, background 0.2s;
+      }
+
+      .search-input-wrapper:focus-within {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(111, 94, 251, 0.4);
+      }
+
+      .search-icon {
+        color: #8b97b3;
+      }
+
+      .search-input-wrapper input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #eaf0ff;
+        font-size: 0.95rem;
+        outline: none;
+      }
+
+      .search-input-wrapper input::placeholder {
+        color: #8b97b3;
+      }
+
+      .chat-list-container {
+        flex: 1;
+        overflow-y: auto;
+        background: #090b12;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-list-container::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-list-container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+      }
+
+      .chat-item {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 0 12px 0 12px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+      }
+
+      .chat-item:hover,
+      .chat-item.active {
+        background: rgba(111, 94, 251, 0.1);
+      }
+
+      .chat-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: rgba(111, 94, 251, 0.24);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-right: 12px;
+      }
+
+      .chat-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 12px 12px 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        min-width: 0;
+        height: 72px;
+        box-sizing: border-box;
+      }
+
+      .chat-item:last-child .chat-info {
+        border-bottom: none;
+      }
+      
+      .chat-item.active .chat-info {
+        border-bottom-color: transparent;
+      }
+
+      .chat-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+
+      .chat-title {
+        font-size: 1.05rem;
+        color: #eaf0ff;
+        font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+
+      .chat-time {
+        font-size: 0.75rem;
+        color: #8b97b3;
+        flex-shrink: 0;
+        margin-left: 8px;
+      }
+
+      .chat-subtitle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .chat-preview {
+        font-size: 0.88rem;
+        color: #8b97b3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+      }
+
+      .chat-badge {
+        background: #6f5efb;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 2px 6px;
+        min-width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+        margin-left: 8px;
+      }
+
+      /* Bottom Nav (Hidden on Desktop) */
+      .bottom-nav {
+        display: none;
       }
 
       @media (max-width: 760px) {
-        .list-panel {
-          height: 100dvh;
-          padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+        .desktop-rail {
+          display: none;
         }
 
-        .profile-section {
-          margin-bottom: 14px;
+        .bottom-nav {
+          display: flex;
+          background: #0c0f17;
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          flex-shrink: 0;
+          height: 60px;
+          padding-bottom: env(safe-area-inset-bottom);
+          box-sizing: content-box;
         }
 
-        .profile-summary {
-          padding: 12px;
-          border-radius: 14px;
+        .nav-tab {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: none;
+          color: #8b97b3;
+          cursor: pointer;
+          gap: 4px;
+          transition: color 0.2s;
         }
 
-        .avatar-large {
-          width: 42px;
-          height: 42px;
+        .nav-tab span {
+          font-size: 0.75rem;
+          font-weight: 500;
         }
 
-        .tabs {
-          gap: 8px;
-          margin-bottom: 12px;
+        .nav-tab.active {
+          color: #6f5efb;
         }
 
-        .tabs button {
-          min-height: 42px;
-          padding: 9px 12px;
-          border-radius: 12px;
+        .nav-tab:hover:not(.active) {
+          color: #c3cce0;
         }
+      }
 
-        .search-box {
-          margin-bottom: 12px;
-        }
+      .loading-indicator {
+        display: flex;
+        justify-content: center;
+        padding: 24px;
+      }
 
-        .search-box input {
-          min-height: 44px;
-          padding: 12px 14px;
-          border-radius: 14px;
-        }
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(111, 94, 251, 0.1);
+        border-top-color: #6f5efb;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
 
-        .conversation-list {
-          gap: 7px;
-          padding-bottom: 2px;
-        }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
 
-        .conversation-list button {
-          grid-template-columns: auto minmax(0, 1fr) auto;
-          min-height: 64px;
-          max-height: none;
-          padding: 10px 12px;
-          border-radius: 15px;
-        }
-
-        .avatar {
-          width: 42px;
-          height: 42px;
-          border-radius: 13px;
-        }
-
-        .meta strong {
-          font-size: 0.92rem;
-        }
-
-        .meta span {
-          font-size: 0.78rem;
-        }
+      .empty-state {
+        text-align: center;
+        color: #8b97b3;
+        padding: 32px 16px;
+        font-size: 0.95rem;
       }
     `,
   ],
@@ -429,7 +520,6 @@ export class ChatListComponent implements OnInit {
 
     this.search$.pipe(debounceTime(250)).subscribe((term) => {
       this.searchTerm = term;
-      console.log('searching for', term, 'in tab', this.activeTab);
       if (this.activeTab === 'group') {
         this.chat.loadChats(term, 'group');
       }
@@ -497,5 +587,10 @@ export class ChatListComponent implements OnInit {
 
   logout() {
     this.auth.logout();
+  }
+
+  hasActiveChat(userId: string): boolean {
+    const chat = this.chat.findPersonalChatByUserId(userId);
+    return chat ? chat._id === this.selectedId : false;
   }
 }
