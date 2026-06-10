@@ -24,6 +24,7 @@ async function bootstrap() {
     mkdirSync(uploadsDir, { recursive: true });
   }
   app.useStaticAssets(uploadsDir, { prefix: '/uploads' });
+  // No-op middleware placeholder (kept for future hooks)
 
   await app.listen(process.env.PORT ? Number(process.env.PORT) : 3000);
   console.log(`Backend running on http://localhost:${process.env.PORT || 3000}`);
