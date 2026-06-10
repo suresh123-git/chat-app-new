@@ -4,7 +4,8 @@ import { firstValueFrom, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = 'http://localhost:3000/api';
+  private base = 'https://chat-app-backend-9clb.onrender.com/api';
+  // private base = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
 

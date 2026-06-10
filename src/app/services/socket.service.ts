@@ -14,6 +14,7 @@ interface QueuedMessage {
 export class SocketService {
   private socket: Socket | null = null;
   private readonly url = 'http://localhost:3000/ws';
+  // private readonly url = 'https://chat-app-backend-9clb.onrender.com/ws';
   private listeners: Record<string, Array<(payload: any) => void>> = {};
   private queue: QueuedMessage[] = [];
   private reconnectAttempt = 0;
